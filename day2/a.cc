@@ -30,7 +30,7 @@ void solve() {
     ll sum1 = 0, sum2 = 0;
     while (getline(cin, line)) {
         int a = line[0] - 'A';
-        int b = line[1] - 'B';
+        int b = line[1] - 'X';
         sum1 += (a == b) * 3 + ((b - a + 3) % 3 == 1) * 6 + b + 1;
         sum2 += b * 3 + (a + b - 1 + 3) % 3 + 1;
     }

@@ -35,7 +35,7 @@ void solve1() {
         for (char& c : b) {
             if (st.count(c)) {
                 ll value = tolower(c) - 'a';
-                sum1 += (value + 1) * isupper(c) * 26;
+                sum1 += (value + 1) + isupper(c) * 26;
                 break;
             }
         }
@@ -58,7 +58,7 @@ void solve2() {
             for (auto& [k, v] : mp) {
                 if (v == 3) {
                     ll value = tolower(k) - 'a';
-                    sum += (value + 1) * isupper(k) * 26;
+                    sum += (value + 1) + isupper(k) * 26;
                     break;
                 }
             }
