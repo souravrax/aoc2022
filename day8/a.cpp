@@ -156,71 +156,46 @@ int32_t main() {
             }
         }
     }
-    
+
     // Problem 2
 
     ll ans2 = 0;
-    vector<vector<vector<ll>>> val(n, vector<vector<ll>>(m));
+    vector val(n, vector<ll>(m, 1));
     // left, right
     for (int i = 0; i < n; i++) {
-        vector<int> dp(m, 1);
         stack<int> st;
         for (int j = 0; j < m; j++) {
-            while (!st.empty() && matrix[i][st.top()] < matrix[i][j]) {
-                dp[j] += dp[st.top()];
-                st.pop();
-            }
+            while (!st.empty() && matrix[i][st.top()] < matrix[i][j]) st.pop();
+            if (st.empty()) val[i][j] *= j;
+            else val[i][j] *= j - st.top();
             st.push(j);
-            val[i][j].push_back(dp[j]);
         }
-        dp.assign(m, 1);
         while (!st.empty()) st.pop();
         for (int j = m - 1; ~j; j--) {
-            while (!st.empty() && matrix[i][st.top()] < matrix[i][j]) {
-                dp[j] += dp[st.top()];
-                st.pop();
-            }
+            while (!st.empty() && matrix[i][st.top()] < matrix[i][j]) st.pop();
+            if (st.empty()) val[i][j] *= m - j - 1;
+            else val[i][j] *= st.top() - j;
             st.push(j);
-            val[i][j].push_back(dp[j]);
         }
     }
     // top, bottom
     for (int j = 0; j < m; j++) {
         stack<int> st;
-        vector<int> dp(n, 1);
         for (int i = 0; i < n; i++) {
-            while (!st.empty() && matrix[st.top()][j] < matrix[i][j]) {
-                dp[i] += dp[st.top()];
-                st.pop();
-            }
+            while (!st.empty() && matrix[st.top()][j] < matrix[i][j]) st.pop();
+            if (st.empty()) val[i][j] *= i;
+            else val[i][j] *= i - st.top();
             st.push(i);
-            val[i][j].push_back(dp[i]);
         }
-        dp.assign(n, 1);
         while (!st.empty()) st.pop();
-
         for (int i = n - 1; ~i; i--) {
-            while (!st.empty() && matrix[st.top()][j] < matrix[i][j]) {
-                dp[i] += dp[st.top()];
-                st.pop();
-            }
+            while (!st.empty() && matrix[st.top()][j] < matrix[i][j]) st.pop();
+            if (st.empty()) val[i][j] *= n - i - 1;
+            else val[i][j] *= st.top() - i;
             st.push(i);
-            val[i][j].push_back(dp[i]);
         }
     }
 
-    for (int i = 1; i < n - 1; i++) {
-        for (int j = 1; j < m - 1; j++) {
-            val[i][j][0] -= (j + 1) == val[i][j][0];
-            val[i][j][1] -= (m - j) == val[i][j][1];
-
-            val[i][j][2] -= (i + 1) == val[i][j][2];
-            val[i][j][3] -= (n - i) == val[i][j][3];
-            dbg() << show(val[i][j]);
-            ll v = (val[i][j][0] * val[i][j][1] * val[i][j][2] * val[i][j][3]);
-            ans2 = max(ans2, v);
-        }
-    }
-
+    for (int i = 1; i < n - 1; i++) ans2 = max(ans2, *max_element(all(val[i])));
     cout << ans << ' ' << ans2 << endl;
 }
