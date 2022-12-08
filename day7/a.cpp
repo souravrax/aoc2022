@@ -79,42 +79,20 @@ vector<string> split(string& s, char delim = ' ') {
 // mt19937 rng((int) std::chrono::steady_clock::now().time_since_epoch().count());
 __attribute__((unused))const int mod = (int)1e9 + 7;
 
-ll dfs(vector<set<int>>& graph, vector<ll>& sum, int u, int p) {
-    dbg() << show(u);
-    for (int v : graph[u]) {
-        if (v == p) continue;
-        dfs(graph, sum, v, u);
-        sum[u] += sum[v];
-    }
-    return sum[u];
-}
-
-struct FileNode {
+struct Node {
     vector<ll> files;
-    map<string, FileNode*> folders;
-    FileNode* parent;
-    FileNode(FileNode* parent) {
+    map<string, Node*> folders;
+    Node* parent;
+    Node(Node* parent) {
         this->parent = parent;
     }
 };
 
-ll total = 0;
-vector<ll> sizes;
+int32_t main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
 
-ll dfs(FileNode* root) {
-    ll sum = 0;
-    for (ll& file : root->files) sum += file;
-    for (auto [_, v] : root->folders) {
-        sum += dfs(v);
-    }
-    sizes.push_back(sum);
-    if (sum <= 100000)total += sum;
-    return sum;
-}
-
-void solve() {
-    auto root = new FileNode(nullptr);
-
+    auto root = new Node(nullptr);
     auto currentNode = root;
     string line;
     while (getline(cin, line)) {
@@ -132,7 +110,7 @@ void solve() {
         } else if (line.substr(0, 3) == "dir") {
             string dir = line.substr(4);
             if (!currentNode->folders.count(dir)) {
-                currentNode->folders[dir] = new FileNode(currentNode);
+                currentNode->folders[dir] = new Node(currentNode);
             }
         } else {
             ll size = stoll(split(line, ' ')[0]);
@@ -140,24 +118,27 @@ void solve() {
         }
     }
 
+    ll ans1 = 0;
+    vector<ll> sizes;
+
+    auto dfs = make_y_combinator([&](auto&& self, Node* current) -> ll {
+        ll sum = 0;
+        for (ll& file : current->files) sum += file;
+        for (auto [_, v] : current->folders) {
+            sum += self(v);
+        }
+        sizes.push_back(sum);
+        if (sum <= 100000) ans1 += sum;
+        return sum;
+    });
+
     ll rootSize = dfs(root);
-    ll ans = rootSize;
+    ll ans2 = rootSize;
 
-    cout << total << endl; // ans1
-    sort(all(sizes), greater<>());
+    cout << ans1 << endl; // ans1
     for (ll& i : sizes) {
-        if (rootSize - i <= 40000000) ans = i;
+        if (rootSize - i <= 40000000) ans2 = min(ans2, i);
     }
-    cout << ans << endl; // ans2
+    cout << ans2 << endl; // ans2
 }
-
-int32_t main() {
-    ios::sync_with_stdio(false);
-#ifndef LOCAL
-    cin.tie(nullptr);
-#endif
-    solve();
-}
-
-// overflows? index_of_of_bound? integer_overflows? read the problem?
 
